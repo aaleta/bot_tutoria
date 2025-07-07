@@ -112,7 +112,7 @@ def build_message(row, today):
     return None
 
 if __name__ == "__main__":
-    config = dotenv_values(".env.dev")
+    config = dotenv_values(".env")
 
     BOT_TOKEN = config["TELEGRAM_BOT_TOKEN"]
     CHAT_ID = config["TELEGRAM_CHAT_ID"]
