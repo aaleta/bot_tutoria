@@ -22,12 +22,13 @@ class ReminderBot:
                 data = {
                     'chat_id': self.chat_id,
                     'text': message,
-                    'parse_mode': 'Markdown'
+                    'parse_mode': 'HTML'
                 },
                 timeout=100
             ).json()
             return response
         except Exception as e:
+            print(str(e))
             return {'error': str(e)}
 
 def fetch_sheet_csv(sheet_id):
@@ -65,7 +66,7 @@ def build_message(row, today):
     msg = ''
     if r_type == 'window':
         # Event body
-        body = f"\n*{title}*\n"
+        body = f"\n<b>{title}</b>\n"
         if description:
             body += f"\n{description}\n"
         body += f"\n🗓 Del {format_spanish_date(start_date)} al {format_spanish_date(end_date)}\n"
@@ -73,21 +74,21 @@ def build_message(row, today):
             body += f"\n🌐 {url}\n"
 
         if start_date == today:
-            msg += "📣 *Empieza hoy*\n"
+            msg += "📣 <b>Empieza hoy</b>\n"
             msg += body
 
         if end_date and (end_date - today).days == notify_days:
             plural = 's' if notify_days > 1 else ''
-            msg += f"⏳ *Termina en {notify_days} día{plural}*\n"
+            msg += f"⏳ <b>Termina en {notify_days} día{plural}</b>\n"
             msg += body
 
         if end_date  == today:
-            msg += f"⚠️ *Termina hoy*\n"
+            msg += f"⚠️ <b>Termina hoy</b>\n"
             msg += body
 
     elif r_type == 'single':
         # Event body
-        body = f"\n*{title}*\n"
+        body = f"\n<b>{title}</b>\n"
         if description:
             body += f"\n{description}\n"
         body += f"\n🗓 {format_spanish_date(end_date)}\n"
@@ -97,11 +98,11 @@ def build_message(row, today):
         if end_date and (end_date - today).days == notify_days:
             plural_n = 'n' if notify_days > 1 else ''
             plural_s = 's' if notify_days > 1 else ''
-            msg += f"🔔 *Falta{plural_n} {notify_days} día{plural_s}*\n"
+            msg += f"🔔 <b>Falta{plural_n} {notify_days} día{plural_s}</b>\n"
             msg += body
 
         if end_date  == today:
-            msg += f"⚠️ *¡Es hoy!*\n"
+            msg += f"📣 <b>¡Es hoy!</b>\n"
             msg += body
 
     if len(msg) > 0:
@@ -110,7 +111,7 @@ def build_message(row, today):
     return None
 
 if __name__ == "__main__":
-    config = dotenv_values(".env")
+    config = dotenv_values(".env.dev")
 
     BOT_TOKEN = config["TELEGRAM_BOT_TOKEN"]
     CHAT_ID = config["TELEGRAM_CHAT_ID"]
@@ -122,9 +123,10 @@ if __name__ == "__main__":
     today = datetime.date.today() if PRODUCTION else datetime.datetime.strptime(sys.argv[1], '%d/%m/%Y').date()
 
     rows = fetch_sheet_csv(SHEET_ID)
-    for row in rows:
-        message = build_message(row, today)
-        if message:
-            print(f"Sending message for: {row['title']}")
-            #print(message)
-            bot.send_message(message)
+    messages = [msg for row in rows if (msg := build_message(row, today)) is not None]
+
+    print(f"Found {len(messages)} messages to send for {today.strftime('%d/%m/%Y')}")
+    for message in messages:
+        print(f"Sending message")
+        response = bot.send_message(message)
+        print("Telegram API response:", response['ok'])

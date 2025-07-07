@@ -1,6 +1,6 @@
-# Memes Bot
+# Reminders Bot
 
-This is a simple bot that sends memes to a Telegram group in random intervals.
+This is a simple bot that sends reminders to a Telegram group based on the information from in a Google Sheet.
 
 ## Installation
 
@@ -11,10 +11,10 @@ This is a simple bot that sends memes to a Telegram group in random intervals.
 TELEGRAM_BOT_TOKEN=your_api_id
 TELEGRAM_CHAT_ID=your_chat_id
 MODE=DEVELOPMENT
+SHEET_ID=your_sheet_id
 ```
-4. Populate the memes folder with images
-5. Run the bot with `python3 bot.py`
+4. Run the bot with a test date like 01/01/2000: `python3 bot.py 01/01/2000`
 
 ## Usage
 
-The bot will send a meme and wait a random interval before sending another one. By default, it sends a message indicating when the next meme will be sent.
+In production mode, the bot will send the reminders based on the current date. Call the program once a day with a cron job or similar scheduler.
