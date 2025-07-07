@@ -22,7 +22,8 @@ class ReminderBot:
                 data = {
                     'chat_id': self.chat_id,
                     'text': message,
-                    'parse_mode': 'HTML'
+                    'parse_mode': 'HTML',
+                    'disable_web_page_preview': True
                 },
                 timeout=100
             ).json()
