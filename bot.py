@@ -102,7 +102,7 @@ def build_message(row, today):
             msg += f"🔔 <b>Falta{plural_n} {notify_days} día{plural_s}</b>\n"
             msg += body
 
-        if end_date  == today:
+        elif end_date == today:
             msg += f"📣 <b>¡Es hoy!</b>\n"
             msg += body
 
